@@ -1,8 +1,3 @@
----
-output:
-  html_document:
-    keep_md: yes
----
 
 # Reproducible Research: Peer Assessment 1
 
@@ -12,12 +7,21 @@ Load the data, and process/transform the data into a format suitable for my anal
 - First I set global options, where I load the "knitr" package, set echo = TRUE to output results, and create a "figures" directory, within the working directory, to store the plots I create.
 
 - I then unzip the data file, and read its contents into the "dat" data frame. Followed by creation of a "datC" data frame with only valid data (no NAs) from the "dat" data frame.
-```{r setoptions, echo = TRUE}
+
+```r
 require(knitr)
+```
+
+```
+## Loading required package: knitr
+```
+
+```r
 opts_chunk$set(echo = TRUE, fig.path = "figures/")
 ```
 
-```{r loading, echo = TRUE}
+
+```r
 unzip("repdata_data_activity.zip")
 dat = read.csv("activity.csv", header = TRUE)
 datC <- complete.cases(dat)
@@ -28,7 +32,8 @@ datC <- dat[datC, ]
 I make a histogram of the total number of steps taken each day by summing the steps data in the "datC" data frame over each date in that data frame. This is assigned to 
 the "sumStep" list. sumStep is then used as the basis of the data in the histogram.
 
-```{r histogram1, echo = TRUE}
+
+```r
 X <- tapply(datC$steps, datC$date, sum, na.rm = TRUE)
 sumStep <- X[complete.cases(X)]
 
@@ -42,18 +47,33 @@ axis(side = 2, at=seq(0, 16, length.out = 9),
      labels = seq(0, 16, length.out = 9))
 ```
 
+![plot of chunk histogram1](figures/histogram1.png) 
+
 Then I calculate and report the mean and median total number of steps taken per day by taking the mean and median of the "sumStep" data.
 
-```{r meanAndMedian, echo = TRUE}
+
+```r
 paste("The mean total number of steps taken per day is", mean(sumStep))
+```
+
+```
+## [1] "The mean total number of steps taken per day is 10766.1886792453"
+```
+
+```r
 paste("The median total number of steps taken per day is", median(sumStep))
+```
+
+```
+## [1] "The median total number of steps taken per day is 10765"
 ```
 
 ## What is the average daily activity pattern?
 - I make a time series plot of the 5-minute interval versus the average number of steps taken, averaged across all days by averaging the steps data in the "datC" data frame over each interval in that data frame. This is assigned to the "sumStep3" list.
 - An "intervalUnique" list is created by using just the unique values of the "interval" vector in the "datc" dataframe. sumStep and intervalUnique are then used as the basis for the data in the plot.
 
-```{r plot1, echo = TRUE}
+
+```r
 Y <- tapply(datC$steps, datC$interval, mean, na.rm = TRUE)
 sumStep3 <- Y[complete.cases(Y)]
 intervalUnique <- unique.default(sapply(datC$interval, unique))
@@ -68,20 +88,32 @@ axis(side = 2, at=seq(0, 220, length.out = 12),
      labels = seq(0, 220, length.out = 12))
 ```
 
+![plot of chunk plot1](figures/plot1.png) 
+
 I calculate Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps by first calculating the maximum value of the sumStep3 list, and then determine the index number "indexMax" in that list, and then use indexMax to filter the intervalUnique vector to a single value intervalMax for the interval with the max number of steps.
 
-```{r maxInterval, echo = TRUE}
+
+```r
 maxStep3 <- max(sumStep3)
 indexMax <- which(sumStep3 %in% maxStep3)
 intervalMax <- intervalUnique[indexMax]
 paste("The 5-minute interval, which on average across all the days in the dataset, contains the maximum number of steps is", intervalMax)
 ```
 
+```
+## [1] "The 5-minute interval, which on average across all the days in the dataset, contains the maximum number of steps is 835"
+```
+
 ## Imputing missing values
 Then I calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs) by summing the is.na() command when applied to the "dat" dataset.
 
-```{r missing, echo = TRUE}
+
+```r
 paste("The total number of missing values in the dataset is", sum(is.na(dat)))
+```
+
+```
+## [1] "The total number of missing values in the dataset is 2304"
 ```
 
 My strategy for filling in all of the missing values in the dataset is:
@@ -94,7 +126,8 @@ So, for example, if interval XYZ has some missing values, I obtain the mean valu
 
 I create a new "datK" dataset that is equal to the original dataset but with the missing data filled in, by obtaining data from the sumStep3 list of averages, and looping over all the intervals with missing data, and substituting the data from the sumStep3 list into the mising steps values.
 
-```{r datasetWithNoMissing, echo = TRUE}
+
+```r
 datK <- dat
 liU <- length(intervalUnique)
 ll <- length(datK[is.na(dat$steps), ][, 1]) / liU
@@ -108,7 +141,8 @@ for (i in 1:ll){
 
 I make a histogram of the total number of steps taken each day using this new "datK" dataset and calculate and report the mean and median total number of steps taken per day. 
 
-```{r histogram2, echo = TRUE}
+
+```r
 Z <- tapply(datK$steps, datK$date, sum, na.rm = TRUE)
 sumStepK <- Z[complete.cases(Z)]
 
@@ -122,6 +156,8 @@ axis(side = 2, at=seq(0, 24, length.out = 13),
      labels = seq(0, 24, length.out = 13))
 ```
 
+![plot of chunk histogram2](figures/histogram2.png) 
+
 Do these values differ from the estimates from the first part of the assignment?
 
 - Yes! The frequency of the mode appears to have increased, and the mean now equals the median (see below)
@@ -130,9 +166,21 @@ What is the impact of imputing missing data on the estimates of the total daily 
 
 - The impact of imputing the missing data on the estimates of the total daily number of steps, using the method I have chosen, is to make the new mean value equal to the median value. The median value has not changed between the dataset with missing values, and the dataset with imputed values.
 
-```{r meanAndMedian2, echo = TRUE}
+
+```r
 paste("The mean total number of steps taken per day is", mean(sumStepK))
+```
+
+```
+## [1] "The mean total number of steps taken per day is 10766.1886792453"
+```
+
+```r
 paste("The median total number of steps taken per day is", median(sumStepK))
+```
+
+```
+## [1] "The median total number of steps taken per day is 10766.1886792453"
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -141,7 +189,8 @@ For this part the weekdays() function may be of some help here. Use the dataset 
 
 I create a new factor variable in the dataset with two levels - "weekday" and "weekend" - indicating whether a given date is a weekday or weekend day.
 
-```{r weekdays, echo = TRUE}
+
+```r
 datK$day <- weekdays(as.Date(datK$date))
 for (i in 1:length(datK$day)){
     if((datK$day[i] == "Saturday") | (datK$day[i] == "Sunday")){
@@ -161,7 +210,8 @@ Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minut
 - I only use the first 288 rows of each dataframe, as this is the number of unique intervals.
 - I then row bind these two dataframes into a new data frame called "datKwDwE", call the "lattice" package, and then create a panel plot showing the mean of the number of steps over each interval, with weekend data in one panel, and weekday data in the other panel.
 
-```{r plot2, echo = TRUE}
+
+```r
 datKwDay <- subset(datK, dayType == "weekday")
 datKwEnd <- subset(datK, dayType == "weekend")
 
@@ -179,6 +229,8 @@ xyplot(stepMean ~ interval|dayType, datKwDwE, type = "l", layout = c(1, 2),
        main = "Average of steps taken versus 5-minute interval", 
        xlab = "Interval", ylab = "Steps")
 ```
+
+![plot of chunk plot2](figures/plot2.png) 
 
 For reference, setup used is:
 
